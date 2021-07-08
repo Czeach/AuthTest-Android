@@ -14,4 +14,5 @@
     <string name="home_last_name">Last Name:</string>
     <string name="home_first_name">First Name:</string>
     <string name="home_avatar">Avatar:</string>
+    <string name="login_title">Already have an account</string>
 </resources>

@@ -24,7 +24,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:drawableEndCompat="@drawable/ic_account"
-        android:text="@string/signup_title"
+        android:text="@string/login_title"
         android:textSize="28sp"
         android:layout_marginTop="20dp"
         android:gravity="center_vertical"
@@ -33,31 +33,13 @@
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"/>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/inputLayoutEmail"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
-        app:layout_constraintStart_toStartOf="@id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/textViewTitle">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTextEmail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/signup_email_hint"
-            android:inputType="textEmailAddress" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/inputLayoutFirstName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/inputLayoutEmail">
+        app:layout_constraintTop_toBottomOf="@+id/textViewTitle">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextFirstName"
@@ -86,36 +68,16 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/editGenderInputLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="@+id/inputLayoutLastName"
-        app:layout_constraintStart_toStartOf="@+id/inputLayoutLastName"
-        app:layout_constraintTop_toBottomOf="@+id/inputLayoutLastName">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editGender"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/signup_gender_hint"
-            android:drawableEnd="@drawable/drop_down"
-            android:editable="false"/>
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-
     <Button
         android:id="@+id/signupButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
         android:minHeight="64dp"
-        android:text="@string/signup_cta"
+        android:layout_marginTop="20dp"
         android:textSize="16sp"
+        android:text="@string/signup_cta"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@+id/editGenderInputLayout" />
+        app:layout_constraintTop_toBottomOf="@id/inputLayoutLastName"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
