@@ -62,11 +62,6 @@ class SignupFragment: Fragment() {
         sessionManager = SessionManager(requireContext())
         apiService = ApiService.getService()
 
-        val email = binding.editTextEmail.text.toString()
-        val firstname = binding.editTextFirstName.text.toString()
-        val lastName = binding.editTextLastName.text.toString()
-        val gender = binding.editGender.text.toString()
-
         binding.signupButton.setOnClickListener {
             if (binding.editTextEmail.text.toString().isEmpty()) {
                 binding.inputLayoutEmail.error = "This field is empty!"
@@ -83,20 +78,22 @@ class SignupFragment: Fragment() {
             if (binding.editTextEmail.text.toString().isNotEmpty() && binding.editTextFirstName.text.toString().isNotEmpty() &&
                 binding.editTextLastName.text.toString().isNotEmpty() && binding.editGender.text.toString().isNotEmpty()) {
 
+                val email = binding.editTextEmail.text.toString()
+                val firstname = binding.editTextFirstName.text.toString()
+                val lastName = binding.editTextLastName.text.toString()
+                val gender = binding.editGender.text.toString()
+
                 apiService.login(LoginRequest(email, firstname, lastName, gender)).enqueue(
                     object : Callback<LoginResponse> {
-                        override fun onResponse(
-                            call: Call<LoginResponse>,
-                            response: Response<LoginResponse>
-                        ) {
+                        override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                             val loginResponse = response.body()
 
                             if (loginResponse?.data != null) {
                                 sessionManager.saveAuthToken(loginResponse.data.token)
 
-                                Toast.makeText(requireContext(), "Token saved", Toast.LENGTH_LONG).show()
+                                Toast.makeText(requireContext(), loginResponse.data.token, Toast.LENGTH_LONG).show()
                             } else {
-                                Toast.makeText(requireContext(), response.message().toString(), Toast.LENGTH_LONG).show()
+                                Toast.makeText(requireContext(), response.message(), Toast.LENGTH_LONG).show()
                                 Log.d("RequestBody", call.request().body.toString())
                                 Log.d("Response", response.message().toString())
                             }

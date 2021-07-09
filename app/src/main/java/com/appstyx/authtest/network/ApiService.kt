@@ -11,25 +11,17 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
+import java.util.concurrent.TimeUnit
 
 const val BASE_URL = "https://asx-auth-test.herokuapp.com/api/v1/"
 
 private val httpClient = OkHttpClient.Builder()
+    .connectTimeout(500, TimeUnit.SECONDS)
+    .readTimeout(500, TimeUnit.SECONDS)
+    .writeTimeout(500, TimeUnit.SECONDS)
     .addInterceptor(
-        Interceptor { chain ->
-            val request = chain.request()
-            val requestBody = request.body
-
-
-            if (requestBody != null) {
-                request.newBuilder()
-                    .header("Content-Type", "application/json")
-                    .post(requestBody)
-                    .build()
-            }
-
-            return@Interceptor chain.proceed(request)
-        }
+        HttpLoggingInterceptor()
+            .setLevel(HttpLoggingInterceptor.Level.BODY)
     )
     .build()
 
@@ -51,9 +43,9 @@ interface ApiService {
     @GET("genders")
     suspend fun getGenders(): Gender
 
-    @Headers("Content-Type: application/json")
+//    @Headers("Content-Type: application/json")
     @POST("users")
     fun login(
-        @Body request: LoginRequest
+        @Body data: LoginRequest
     ): Call<LoginResponse>
 }
