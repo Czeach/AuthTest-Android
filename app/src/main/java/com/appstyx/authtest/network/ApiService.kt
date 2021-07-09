@@ -17,20 +17,18 @@ const val BASE_URL = "https://asx-auth-test.herokuapp.com/api/v1/"
 private val httpClient = OkHttpClient.Builder()
     .addInterceptor(
         Interceptor { chain ->
-            val builder = chain.request()
-                .newBuilder()
-                .header("Server", "Cowboy")
-                .header("Connection", "keep-alive")
-                .header("X-Powered-By", "Express")
-                .header("Content-Type", "application/json")
-                .header("Content-Length", "383")
-                .header("Etag", "W/\"17f-jTSkWw1bi52EIuLETpr7XLj1UPs\"")
-                .header("Vary", "Accept-Encoding")
-                .header("Date", "Thu, 24 Jun 2021 13:29:09 GMT")
-                .header("Via", "1.1 vegur")
-                .build()
+            val request = chain.request()
+            val requestBody = request.body
 
-            return@Interceptor chain.proceed(builder)
+
+            if (requestBody != null) {
+                request.newBuilder()
+                    .header("Content-Type", "application/json")
+                    .post(requestBody)
+                    .build()
+            }
+
+            return@Interceptor chain.proceed(request)
         }
     )
     .build()
@@ -43,7 +41,7 @@ interface ApiService {
                     .baseUrl(BASE_URL)
                     .addCallAdapterFactory(CoroutineCallAdapterFactory())
                     .addConverterFactory(GsonConverterFactory.create())
-//                    .client(httpClient)
+                    .client(httpClient)
                     .build()
 
                 return retrofit.create(ApiService::class.java)
@@ -53,8 +51,8 @@ interface ApiService {
     @GET("genders")
     suspend fun getGenders(): Gender
 
-    @POST("users")
     @Headers("Content-Type: application/json")
+    @POST("users")
     fun login(
         @Body request: LoginRequest
     ): Call<LoginResponse>

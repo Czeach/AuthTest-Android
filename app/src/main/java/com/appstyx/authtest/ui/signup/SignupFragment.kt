@@ -3,6 +3,7 @@ package com.appstyx.authtest.ui.signup
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -96,11 +97,12 @@ class SignupFragment: Fragment() {
                                 Toast.makeText(requireContext(), "Token saved", Toast.LENGTH_LONG).show()
                             } else {
                                 Toast.makeText(requireContext(), response.message().toString(), Toast.LENGTH_LONG).show()
+                                Log.d("RequestBody", call.request().body.toString())
+                                Log.d("Response", response.message().toString())
                             }
                         }
 
                         override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                            TODO("Not yet implemented")
                         }
 
                     }
