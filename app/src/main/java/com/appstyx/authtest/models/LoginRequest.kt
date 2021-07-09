@@ -1,6 +1,8 @@
 package com.appstyx.authtest.models
 
 
+import android.os.Parcelable
+import androidx.versionedparcelable.VersionedParcelize
 import com.google.gson.annotations.SerializedName
 
 data class LoginRequest(

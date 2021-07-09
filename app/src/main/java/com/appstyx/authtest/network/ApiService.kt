@@ -3,10 +3,14 @@ package com.appstyx.authtest.network
 import com.appstyx.authtest.models.Gender
 import com.appstyx.authtest.models.LoginRequest
 import com.appstyx.authtest.models.LoginResponse
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonObject
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -28,11 +32,14 @@ private val httpClient = OkHttpClient.Builder()
 interface ApiService {
 
         companion object {
+
+            private val gsonBuilder: GsonBuilder = GsonBuilder().serializeNulls()
+
             fun getService(): ApiService {
                 val retrofit = Retrofit.Builder()
                     .baseUrl(BASE_URL)
                     .addCallAdapterFactory(CoroutineCallAdapterFactory())
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gsonBuilder.create()))
                     .client(httpClient)
                     .build()
 
@@ -43,9 +50,8 @@ interface ApiService {
     @GET("genders")
     suspend fun getGenders(): Gender
 
-//    @Headers("Content-Type: application/json")
+    @Headers("Content-Type: application/json")
     @POST("users")
     fun login(
-        @Body data: LoginRequest
-    ): Call<LoginResponse>
+        @Body body: LoginRequest): Call<LoginResponse>
 }

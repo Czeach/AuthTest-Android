@@ -1,20 +1,19 @@
 package com.appstyx.authtest.ui.signup
 
+import android.app.Activity
 import android.app.AlertDialog
-import android.content.DialogInterface
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.Spinner
-import android.widget.SpinnerAdapter
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.appstyx.authtest.R
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.appstyx.authtest.databinding.FragmentSignupBinding
 import com.appstyx.authtest.models.Gender
 import com.appstyx.authtest.models.LoginRequest
@@ -23,6 +22,9 @@ import com.appstyx.authtest.network.ApiService
 import com.appstyx.authtest.network.SessionManager
 import com.appstyx.authtest.utils.GenderAdapter
 import com.appstyx.authtest.utils.Status
+import com.appstyx.authtest.utils.genderClickListener
+import com.google.gson.JsonObject
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -34,7 +36,6 @@ class SignupFragment: Fragment() {
     private lateinit var apiService: ApiService
 
     private lateinit var viewModel: SignupViewModel
-    private var genderAdapter = GenderAdapter(arrayListOf())
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 
@@ -42,22 +43,48 @@ class SignupFragment: Fragment() {
         viewModel = ViewModelProvider(this, SignUpViewModelFactory(ApiService.getService()))
             .get(SignupViewModel::class.java)
 
-//        binding.editGender.setOnClickListener {
-//            AlertDialog.Builder(requireContext())
-//                .setTitle("Select Gender")
-//                .setAdapter(genderAdapter, object : DialogInterface.OnClickListener {
-//                    override fun onClick(dialog: DialogInterface?, which: Int) {
-//                        binding.editGender.setText(genderAdapter.getItem(which).toString())
-//
-//                        dialog?.dismiss()
-//                    }
-//
-//                }).create().show()
-//        }
+        val genderClickListener by lazy {
+            object : genderClickListener {
+                override fun invoke(it: Gender.Data.Gender) {
+                    binding.editGender.setText(it.name.toString())
+                }
 
-//        binding.editGender.apply {
-//            adapter = genderAdapter
-//        }
+            }
+        }
+        val genderAdapter = GenderAdapter(arrayListOf(), genderClickListener)
+
+        binding.genderRecycler.apply {
+            layoutManager = LinearLayoutManager(activity, LinearLayoutManager.VERTICAL, false)
+            adapter = genderAdapter
+        }
+
+        viewModel.getGenders().observe(viewLifecycleOwner, Observer {
+            it.let { resource ->
+                when (resource.status) {
+                    Status.SUCCESS -> {
+                        resource.data.let { credits ->
+                            credits?.data?.genders?.let { it1 -> genderAdapter.updateList(it1) }
+                        }
+                    }
+                    Status.LOADING -> {
+
+                    }
+                    Status.ERROR -> {
+
+                    }
+                }
+            }
+        })
+
+        binding.editGender.setOnClickListener {
+            hideKeyboard()
+
+            if (binding.genderRecycler.visibility == View.GONE) {
+                binding.genderRecycler.visibility = View.VISIBLE
+            } else {
+                binding.genderRecycler.visibility = View.GONE
+            }
+        }
 
         sessionManager = SessionManager(requireContext())
         apiService = ApiService.getService()
@@ -83,7 +110,14 @@ class SignupFragment: Fragment() {
                 val lastName = binding.editTextLastName.text.toString()
                 val gender = binding.editGender.text.toString()
 
-                apiService.login(LoginRequest(email, firstname, lastName, gender)).enqueue(
+                val loginRequest = LoginRequest(
+                    email = email,
+                    firstName = firstname,
+                    lastName = lastName,
+                    gender = gender
+                )
+
+                apiService.login(loginRequest).enqueue(
                     object : Callback<LoginResponse> {
                         override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                             val loginResponse = response.body()
@@ -108,37 +142,20 @@ class SignupFragment: Fragment() {
             }
         }
 
-        viewModel.getGenders().observe(viewLifecycleOwner, Observer {
-            it.let { resource ->
-                when (resource.status) {
-                    Status.SUCCESS -> {
-                        resource.data.let { credits ->
-
-                            val genderList: List<Gender.Data.Gender> = credits?.data?.genders!!
-
-                            val spinnerAdapter = GenderAdapter(genderList)
-
-                            binding.editGender.setOnClickListener {
-                                AlertDialog.Builder(requireContext())
-                                    .setTitle("Select gender")
-                                    .setAdapter(spinnerAdapter) { dialog, which ->
-                                        binding.editGender.setText(genderList[which].name.toString())
-                                        dialog?.dismiss()
-                                    }.create().show()
-                            }
-                        }
-                    }
-                    Status.LOADING -> {
-
-                    }
-                    Status.ERROR -> {
-
-                    }
-                }
-            }
-        })
-
         return binding.root
+    }
+
+    fun Fragment.hideKeyboard() {
+        view?.let { activity?.hideKeyboard(it) }
+    }
+
+    fun Activity.hideKeyboard() {
+        hideKeyboard(currentFocus ?: View(this))
+    }
+
+    fun Context.hideKeyboard(view: View) {
+        val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
 //    override fun onDestroyView() {
