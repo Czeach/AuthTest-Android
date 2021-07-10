@@ -25,3 +25,13 @@ Please complete the following tasks to help us better address your Android exper
 
 ## Your thoughts
 _Please add here any comments about decisions you made while implementing the requested changes, reasoning about any dependencies you may have added to the project, any issues you may have faced, problematic code you would like to change..._
+
+Decisions and dependencies:
+Jetpack navigation component (one activity multiple fragments) because it is mostly recommended and i'm very familiar working with it.
+Retrofit, Gson and Kotlin Coroutines for network calls.
+Glide for image loading.
+
+Issues faced:
+I had a bit of issue with the Signup POST request because i was using the 'name' field of the list of genders returned from the genders GET request instead of the 'id' field and hence it was returning a "unknown gender" error. I finally figured it out and once i did, every other thing went on smoothly.
+
+I enjoyed taking this exercise, thank you.
