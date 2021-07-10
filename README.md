@@ -28,8 +28,9 @@ _Please add here any comments about decisions you made while implementing the re
 
 Decisions and dependencies:
 Jetpack navigation component (one activity multiple fragments) because it is mostly recommended and i'm very familiar working with it.
-Retrofit, Gson and Kotlin Coroutines for network calls.
+Retrofit, OkHttp3, Gson and Kotlin Coroutines for network calls.
 Glide for image loading.
+Shared Preferences to store and fetch user token
 
 Issues faced:
 I had a bit of issue with the Signup POST request because i was using the 'name' field of the list of genders returned from the genders GET request instead of the 'id' field and hence it was returning a "unknown gender" error. I finally figured it out and once i did, every other thing went on smoothly.
