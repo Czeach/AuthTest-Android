@@ -27,8 +27,8 @@ class GenderAdapter(private var list: List<Gender.Data.Gender>, private val clic
         holder.bind(episode)
     }
 
-    fun updateList(episodeList: List<Gender.Data.Gender>) {
-        list = episodeList
+    fun updateList(genderList: List<Gender.Data.Gender>) {
+        list = genderList
         notifyDataSetChanged()
     }
 
@@ -39,7 +39,7 @@ class GenderAdapter(private var list: List<Gender.Data.Gender>, private val clic
 
         fun bind(list: Gender.Data.Gender) {
 
-            gender.text = list.name
+            gender.text = list.id
 
         }
 

@@ -3,15 +3,11 @@ package com.appstyx.authtest.network
 import com.appstyx.authtest.models.Gender
 import com.appstyx.authtest.models.LoginRequest
 import com.appstyx.authtest.models.LoginResponse
+import com.appstyx.authtest.models.UserData
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonObject
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
-import org.json.JSONObject
-import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
@@ -52,6 +48,12 @@ interface ApiService {
 
     @Headers("Content-Type: application/json")
     @POST("users")
-    fun login(
-        @Body body: LoginRequest): Call<LoginResponse>
+    suspend fun login(
+        @Body body: LoginRequest
+    ): LoginResponse
+
+    @GET("users/me")
+    suspend fun getUserData(
+        @Header("Authorization") token: String
+    ): UserData
 }

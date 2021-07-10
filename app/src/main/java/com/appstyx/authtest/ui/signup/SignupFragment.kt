@@ -1,7 +1,6 @@
 package com.appstyx.authtest.ui.signup
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -13,27 +12,23 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavOptions
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.appstyx.authtest.R
 import com.appstyx.authtest.databinding.FragmentSignupBinding
 import com.appstyx.authtest.models.Gender
 import com.appstyx.authtest.models.LoginRequest
-import com.appstyx.authtest.models.LoginResponse
 import com.appstyx.authtest.network.ApiService
-import com.appstyx.authtest.network.SessionManager
+import com.appstyx.authtest.utils.SessionManager
 import com.appstyx.authtest.utils.GenderAdapter
 import com.appstyx.authtest.utils.Status
 import com.appstyx.authtest.utils.genderClickListener
-import com.google.gson.JsonObject
-import org.json.JSONObject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class SignupFragment: Fragment() {
 
     private lateinit var binding: FragmentSignupBinding
     private lateinit var sessionManager: SessionManager
-    private lateinit var apiService: ApiService
 
     private lateinit var viewModel: SignupViewModel
 
@@ -43,12 +38,17 @@ class SignupFragment: Fragment() {
         viewModel = ViewModelProvider(this, SignUpViewModelFactory(ApiService.getService()))
             .get(SignupViewModel::class.java)
 
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         val genderClickListener by lazy {
             object : genderClickListener {
                 override fun invoke(it: Gender.Data.Gender) {
-                    binding.editGender.setText(it.name.toString())
+                    binding.editGender.setText(it.id.toString())
                 }
-
             }
         }
         val genderAdapter = GenderAdapter(arrayListOf(), genderClickListener)
@@ -87,7 +87,6 @@ class SignupFragment: Fragment() {
         }
 
         sessionManager = SessionManager(requireContext())
-        apiService = ApiService.getService()
 
         binding.signupButton.setOnClickListener {
             if (binding.editTextEmail.text.toString().isEmpty()) {
@@ -117,32 +116,36 @@ class SignupFragment: Fragment() {
                     gender = gender
                 )
 
-                apiService.login(loginRequest).enqueue(
-                    object : Callback<LoginResponse> {
-                        override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
-                            val loginResponse = response.body()
+                viewModel.login(loginRequest).observe(viewLifecycleOwner, Observer {
+                    it.let { resource ->
+                        when (resource.status) {
+                            Status.SUCCESS -> {
+                                resource.data.let { credits ->
+                                    val loginResponse = credits?.data
 
-                            if (loginResponse?.data != null) {
-                                sessionManager.saveAuthToken(loginResponse.data.token)
+                                    if (loginResponse != null) {
+                                        sessionManager.saveAuthToken(loginResponse.token)
 
-                                Toast.makeText(requireContext(), loginResponse.data.token, Toast.LENGTH_LONG).show()
-                            } else {
-                                Toast.makeText(requireContext(), response.message(), Toast.LENGTH_LONG).show()
-                                Log.d("RequestBody", call.request().body.toString())
-                                Log.d("Response", response.message().toString())
+                                        val options = NavOptions.Builder().setPopUpTo(R.id.signupFragment, true).build()
+                                        findNavController().navigate(SignupFragmentDirections.actionSignupFragmentToHomeFragment(), options)
+
+                                    }
+                                }
+                            }
+                            Status.LOADING -> {
+
+                            }
+                            Status.ERROR -> {
+                                Toast.makeText(requireContext(), it.message, Toast.LENGTH_LONG).show()
+                                it.message?.let { it1 -> Log.d("ErrorResponse", it1) }
                             }
                         }
-
-                        override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
-                        }
-
                     }
-                )
+                })
 
             }
         }
 
-        return binding.root
     }
 
     fun Fragment.hideKeyboard() {
@@ -156,31 +159,6 @@ class SignupFragment: Fragment() {
     fun Context.hideKeyboard(view: View) {
         val inputMethodManager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
-    }
-
-//    override fun onDestroyView() {
-//        super.onDestroyView()
-//        binding = null
-//    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-
-    }
-
-//    private fun initViewModelObservers() {
-//        // TODO
-//    }
-
-//    private fun initActionsListeners() {
-//        binding.signupButton.setOnClickListener {
-//            viewModel.onSignupClick()
-//        }
-//    }
-
-    companion object {
-        fun newInstance() = SignupFragment()
     }
 
 }
